@@ -16,11 +16,14 @@ public class HexagonController : MonoBehaviour
         return color;
     }
 
-    public void GoOtherCell(CellController targetCell)
+    public void GoOtherCell(CellController targetCell, bool triggerEvent = false)
     {
+        targetCell.AddHex(this);
         transform.DOMove(targetCell.GetVerticalPosForHex(), moveDuration).OnComplete(() =>
         {
-            InputManager.instance.TriggerCheckPossibleMovesEvent();
+            transform.SetParent(targetCell.HexStackParent);
+            if (triggerEvent)
+                InputManager.instance.TriggerCheckPossibleMovesEvent();
         });
     }
 

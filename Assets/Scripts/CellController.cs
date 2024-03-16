@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
     public bool isOnAction;
     [Header("References")]
-    public Transform BlockParent;
+    public Transform HexStackParent;
 
     [Header("Debug")]
     public bool isOccupied;
@@ -17,11 +18,12 @@ public class CellController : MonoBehaviour
     [Header("Hexagons Related")]
     [SerializeField] ColorInfo.ColorEnum lastHexColor;
     [SerializeField] List<HexagonController> hexagons = new List<HexagonController>();
-    [SerializeField] HexSortWrapper hexSorter = new();
+    [SerializeField] List<HexagonController> hexToSendList = new List<HexagonController>();
+    HexSortWrapper hexSorter = new();
     ColorInfo.ColorEnum firstColor;
     CellController cellController;
     private const float VERTICAL_PLACEMENT_OFFSET = 0.2f;
-
+    Dictionary<ColorInfo.ColorEnum, List<HexagonController>> colorToHexagonDict = new Dictionary<ColorInfo.ColorEnum, List<HexagonController>>();
     IEnumerator Start()
     {
         yield return null;
@@ -29,12 +31,11 @@ public class CellController : MonoBehaviour
         SetNeighbours(GridManager.instance.FindNeighbors((int)_coordinates.x, (int)_coordinates.y));
 
         SetHexagonLists();
+        SeparateHexagonsByColor();
 
         cellController = transform.GetComponent<CellController>();
         InputManager.instance.CheckPossibleMovesEvent += OnCheckPossibleMoves;
     }
-
-   
 
     private void OnCheckPossibleMoves()
     {
@@ -51,17 +52,18 @@ public class CellController : MonoBehaviour
 
         if (neighbours.Count == 0) Debug.LogWarning("No neighbour: " + neighbours.Count);
 
+        CellController targetNeighbor = null;
+        ColorInfo.ColorEnum neighbourLastColor = ColorInfo.ColorEnum.None;
+
         for (int i = 0; i < neighbours.Count; i++)
         {
-            ColorInfo.ColorEnum neighbourLastColor = neighbours[i].GetLastColor();
+            neighbourLastColor = neighbours[i].GetLastColor();
 
             if (neighbourLastColor == lastHexColor)
             {
-                CellController targetNeighbor = neighbours[i];
-
-                SendHexagonToNeighbor(targetNeighbor, GetLastHexagon()); // Send the hexagon to the neighbor
+                targetNeighbor = neighbours[i];
+                StartCoroutine(SendHexagonToNeighbor(hexToSendList, targetNeighbor));
                 breakLoop = true;
-                // köprü hareketi için buraya eklemeler yapýlmalý
                 return;
             }
 
@@ -94,42 +96,108 @@ public class CellController : MonoBehaviour
     {
         hexagons.Clear();
         hexagons.AddRange(hexes);
+        SeparateHexagonsByColor();
 
         lastHexColor = hexagons[hexagons.Count - 1].GetColor();
     }
 
     // Check if the top hexagon of this cell's stack can be sent to the neighbor
-    public void CheckAndSendHexagonToNeighbor(CellController neighbor)
-    {
-        if (hexagons.Count > 0 && neighbor != null && neighbor.hexagons.Count > 0)
-        {
-            HexagonController myHexagon = hexagons[hexagons.Count - 1]; // Get the top hexagon from this cell's stack
-            HexagonController neighborHexagon = neighbor.hexagons[neighbor.hexagons.Count - 1]; // Get the top hexagon from the neighbor's stack
+    //public void CheckAndSendHexagonToNeighbor(CellController neighbor)
+    //{
+    //    if (hexagons.Count > 0 && neighbor != null && neighbor.hexagons.Count > 0)
+    //    {
+    //        HexagonController myHexagon = hexagons[hexagons.Count - 1]; // Get the top hexagon from this cell's stack
+    //        HexagonController neighborHexagon = neighbor.hexagons[neighbor.hexagons.Count - 1]; // Get the top hexagon from the neighbor's stack
 
-            if (myHexagon.GetColor() == neighborHexagon.GetColor()) // Check if the colors match
-            {
-                SendHexagonToNeighbor(neighbor, myHexagon); // Send the hexagon to the neighbor
-            }
-        }
-    }
+    //        if (myHexagon.GetColor() == neighborHexagon.GetColor()) // Check if the colors match
+    //        {
+    //            SendHexagonToNeighbor(neighbor, myHexagon); // Send the hexagon to the neighbor
+    //        }
+    //    }
+    //}
 
-    // Send the given hexagon to the neighbor cell
+    #region Send & Receive Hexagons
     private void SendHexagonToNeighbor(CellController neighbor, HexagonController hexagon)
     {
-        hexagons.RemoveAt(hexagons.Count - 1); // Remove the hexagon from this cell's stack
-        neighbor.hexagons.Add(hexagon); // Add the hexagon to the neighbor's stack
+        HexagonController removedHex = GetLastHexagon();
+        ColorInfo.ColorEnum hexColor = GetLastHexagon().GetColor();
+        hexagons.Remove(removedHex);
+        colorToHexagonDict[hexColor].Remove(removedHex);
+        neighbor.hexagons.Add(hexagon);
+    }
 
-        hexagon.GoOtherCell(neighbor);
+
+    // Send the given hexagon to the neighbor cell
+    private IEnumerator SendHexagonToNeighbor(List<HexagonController> hexToSendList, CellController neighbor)
+    {
+        for (int i = hexagons.Count - 1; i >= 0; i--)
+        {
+            HexagonController hex = hexagons[i];
+
+            if (hex.GetColor() == neighbor.GetLastColor())
+                hexToSendList.Add(hex);
+            else
+                break;
+            
+        }
+
+        yield return new WaitUntil(() => hexToSendList.Count > 0);
+
+        Debug.Log("BOK, " + hexToSendList.Count);
+
+        for (int i = 0; i < hexToSendList.Count; i++)
+        {
+            HexagonController hex = hexToSendList[i];
+
+            //if (GetLastHexagon() != colorToHexagonDict[hex.GetColor()][colorToHexagonDict[hex.GetColor()].Count - 1])
+            //{
+            //    Debug.Log("Bok");
+            //    break;
+            //}
+
+
+            hexagons.Remove(hex);
+
+            colorToHexagonDict[hex.GetColor()].Remove(hex);
+
+            hex.GoOtherCell(neighbor,
+                triggerEvent: i == hexToSendList.Count - 1);
+
+            yield return new WaitForSeconds(.1f);
+        }
         isOccupied = hexagons.Count > 0 ? true : false;
-        // Update visuals or animations to reflect the hexagon moving from this cell to the neighbor
+        this.hexToSendList.Clear();
     }
 
     private void RecieveHexagonsFromNeighbor()
     {
 
     }
+    #endregion
+
+    private void SeparateHexagonsByColor()
+    {
+        if (hexagons.Count < 1) return;
+        for (int i = 0; i < hexagons.Count; i++)
+        {
+            HexagonController hex = hexagons[i];
+            ColorInfo.ColorEnum color = hex.GetColor();
+
+            if (!colorToHexagonDict.ContainsKey(color))
+            {
+                colorToHexagonDict[color] = new List<HexagonController>();
+            }
+            colorToHexagonDict[color].Add(hex);
+        }
+    }
 
     #region Getters / Setters
+    public void AddHex(HexagonController hex)
+    {
+        if (!hexagons.Contains(hex))
+            hexagons.Add(hex);
+    }
+    // GETTERS
     public ColorInfo.ColorEnum GetLastColor()
     {
         ColorInfo.ColorEnum lastHexColor =
@@ -154,7 +222,6 @@ public class CellController : MonoBehaviour
 
         return GetCenter() + pos;
     }
-
     HexagonController GetLastHexagon()
     {
         if (hexagons.Count == 0)
@@ -166,48 +233,46 @@ public class CellController : MonoBehaviour
     // SETTERS
     private void SetHexagonLists()
     {
-        foreach (Transform hex in BlockParent)
+        foreach (Transform hex in HexStackParent)
         {
             HexagonController hexagonController = hex.GetComponent<HexagonController>();
             hexagons.Add(hexagonController);
         }
-        for (int i = 0; i < hexagons.Count; i++)
-        {
-            HexagonController hex = hexagons[i];
-            //            if(hex.GetColor() == ColorInfo.ColorEnum.RED)
+        //for (int i = 0; i < hexagons.Count; i++)
+        //{
+        //    HexagonController hex = hexagons[i];
 
-            switch (hex.GetColor())
-            {
-                case ColorInfo.ColorEnum.RED
-                    :
-                    hexSorter.Red.Add(hex);
-                    break;
-                case ColorInfo.ColorEnum.YELLOW
-                    :
-                    hexSorter.Yellow.Add(hex);
-                    break;
-                case ColorInfo.ColorEnum.BLUE
-                    :
-                    hexSorter.Blue.Add(hex);
-                    break;
-                case ColorInfo.ColorEnum.GREEN
-                    :
-                    hexSorter.Green.Add(hex);
-                    break;
-                case ColorInfo.ColorEnum.PURPLE
-                    :
-                    hexSorter.Purple.Add(hex);
-                    break;
+        //    switch (hex.GetColor())
+        //    {
+        //        case ColorInfo.ColorEnum.RED
+        //            :
+        //            hexSorter.Red.Add(hex);
+        //            break;
+        //        case ColorInfo.ColorEnum.YELLOW
+        //            :
+        //            hexSorter.Yellow.Add(hex);
+        //            break;
+        //        case ColorInfo.ColorEnum.BLUE
+        //            :
+        //            hexSorter.Blue.Add(hex);
+        //            break;
+        //        case ColorInfo.ColorEnum.GREEN
+        //            :
+        //            hexSorter.Green.Add(hex);
+        //            break;
+        //        case ColorInfo.ColorEnum.PURPLE
+        //            :
+        //            hexSorter.Purple.Add(hex);
+        //            break;
 
-            }
-        }
+        //    }
+        //}
     }
     public void SetCoordinates(float x, float y)
     {
         _coordinates.x = x;
         _coordinates.y = y;
     }
-
     public void SetOccupied(bool state)
     {
         isOccupied = state;
@@ -216,8 +281,6 @@ public class CellController : MonoBehaviour
     {
         neighbors.AddRange(_neighbors);
     }
-
-
     #endregion
 }
 

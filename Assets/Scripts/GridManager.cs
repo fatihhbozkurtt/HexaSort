@@ -82,7 +82,7 @@ public class GridManager : MonoSingleton<GridManager>
                         {
                             SpawnBlock(b,
                                 _gridPlan[x, y].GridObject.transform.position,
-                                _gridPlan[x, y].GridObject.GetComponent<CellController>().BlockParent,
+                                _gridPlan[x, y].GridObject.GetComponent<CellController>().HexStackParent,
                                 mat,
                                 color);
                         }

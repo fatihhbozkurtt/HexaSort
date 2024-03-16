@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 0
-  moveDuration: 0.5
+  moveDuration: 0.35
 --- !u!1 &8857704140150035615
 GameObject:
   m_ObjectHideFlags: 0

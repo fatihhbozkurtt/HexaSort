@@ -46,13 +46,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09638b33082632246861104c53edfe74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlockParent: {fileID: 5803405723186675447}
+  isOnAction: 0
+  HexStackParent: {fileID: 5803405723186675447}
   isOccupied: 0
   _coordinates: {x: 0, y: 0}
   neighbors: []
-  blockParent: {fileID: 0}
-  lastColor: 0
+  lastHexColor: 0
   hexagons: []
+  hexToSendList: []
 --- !u!1 &5277506733099654891
 GameObject:
   m_ObjectHideFlags: 0
@@ -95,7 +96,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5803405723186675447}
   m_Layer: 0
-  m_Name: BlockParent
+  m_Name: HexStackParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
