@@ -44,6 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aad6fbb833687a42a2a4c83d62835fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PickibleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  blockPicking: 0
 --- !u!1 &3934330142165637476
 GameObject:
   m_ObjectHideFlags: 0

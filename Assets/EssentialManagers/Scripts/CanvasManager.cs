@@ -5,10 +5,18 @@ using UnityEngine.UI;
 
 public class CanvasManager : MonoSingleton<CanvasManager>
 {
+    public event System.Action<int> ScoreUpdatedEvent;
+
     public enum PanelType
     {
         MainMenu, Game, Success, Fail
     }
+    [Header("References")]
+    [SerializeField] TextMeshProUGUI scoreText;
+
+    [Header("Debug")]
+    [SerializeField] int currentScore;
+
 
     [Header("Canvas Groups")]
     public CanvasGroup mainMenuCanvasGroup;
@@ -19,8 +27,8 @@ public class CanvasManager : MonoSingleton<CanvasManager>
     [Header("Standard Objects")]
     public Image screenFader;
     public TextMeshProUGUI levelText;
-
     CanvasGroup[] canvasArray;
+
 
     protected override void Awake()
     {
@@ -63,6 +71,13 @@ public class CanvasManager : MonoSingleton<CanvasManager>
         GameManager.instance.LevelFailedEvent += (() => ShowPanel(PanelType.Fail));
     }
 
+    public void UpdateScoreText()
+    {
+        currentScore += 10; // just for demonstration no need to add specific currentScore system 
+        scoreText.text = "Score: " + currentScore.ToString();
+
+        ScoreUpdatedEvent?.Invoke(currentScore);
+    }
     public void ShowPanel(PanelType panelId)
     {
         int panelIndex = (int)panelId;

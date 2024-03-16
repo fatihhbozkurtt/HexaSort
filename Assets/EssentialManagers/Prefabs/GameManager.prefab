@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLevelActive: 0
   isLevelSuccessful: 0
+  BlastObjectveAmount: 8
 --- !u!1 &2805285470572258171
 GameObject:
   m_ObjectHideFlags: 0

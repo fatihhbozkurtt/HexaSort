@@ -1,12 +1,14 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Collections;
+using Unity.VisualScripting;
 
 public class PickableStack : MonoBehaviour
 {
-
     [Header("Configuration")]
     public bool IsPicked;
+    public bool IsPlaced;
     [SerializeField] LayerMask cellLayer;
 
     [Header("Debug")]
@@ -20,23 +22,16 @@ public class PickableStack : MonoBehaviour
         _startPos = transform.position;
     }
 
-    public void PlaceObjectOnGrid(Vector3 cellPosition)
+    IEnumerator Start()
     {
-        cellPosition.y += 0.1f;
-        transform.position = cellPosition;
-        IsPicked = true;
-    }
+        GameManager.instance.LevelEndedEvent += DestroySelf;
 
-    public void GetPicked()
-    {
-        IsPicked = true;
-    }
+        yield return null;
 
-    public void GetReleased()
-    {
-        IsPicked = false;
-        InputManager.instance.SetBlockPicking(false);
-        transform.DOMove(_startPos, .5f);
+        foreach (Transform hex in transform)
+        {
+            hexagons.Add(hex.GetComponent<HexagonController>());
+        }
     }
 
     void Update()
@@ -65,7 +60,6 @@ public class PickableStack : MonoBehaviour
         FollowMousePos();
         GetCellBelow();
     }
-
     private void FollowMousePos()
     {
         Vector3 mousePosition =
@@ -74,20 +68,32 @@ public class PickableStack : MonoBehaviour
         // Update the position of the selected object to the mouse position
         transform.position = new Vector3(mousePosition.x + offset.x, transform.position.y, mousePosition.z + offset.z);
     }
-
     void GoToCell(CellController targetCell)
-    { 
-        Vector3 targetCellPos = targetCell.GetCenter();
+    {
         targetCell.UpdateHexagonsList(hexagons);
 
-        transform.DOMove(targetCellPos, 0.5f).OnComplete(() =>
+        for (int i = 0; i < hexagons.Count; i++)
         {
-            targetCell.SetOccupied(true);
-            InputManager.instance.SetBlockPicking(shouldBlock: false);
-            InputManager.instance.TriggerCheckPossibleMovesEvent();
-        });
+            Transform hex = hexagons[i].transform;
+
+            hex.transform.DOLocalMove(new Vector3(0, i * GridManager.instance.VERTICAL_PLACEMENT_OFFSET, 0), 0.3f);
+        }
+
+        InputManager.instance.SetBlockPicking(shouldBlock: false);
+        InputManager.instance.TriggerStackPlacedOnGridEvent(this);
+        targetCell.SetOccupied(true);
+        targetCell.StartCoroutine(targetCell.ControlTransfer(.4f));
+
+        DestroySelf();
     }
 
+    void DestroySelf()
+    {
+        Destroy(gameObject, .1f);
+        GameManager.instance.LevelEndedEvent -= DestroySelf;
+    }
+
+    #region GETTERS
 
     CellController GetCellBelow()
     {
@@ -107,4 +113,23 @@ public class PickableStack : MonoBehaviour
 
         return null;
     }
+    public void GetPicked()
+    {
+        IsPicked = true;
+    }
+
+    public void GetReleased()
+    {
+        IsPicked = false;
+        InputManager.instance.SetBlockPicking(false);
+        transform.DOMove(_startPos, .5f);
+    }
+    public void GetPlaced(Vector3 cellPosition)
+    {
+        cellPosition.y += 0.1f;
+        transform.position = cellPosition;
+        IsPicked = true;
+    }
+
+    #endregion
 }

@@ -8,16 +8,14 @@ public class ColorPack : ScriptableObject
     public class ColorPackInfo
     {
         public ColorInfo.ColorEnum SelectedColorEnum = ColorInfo.ColorEnum.None;
-        public Color RopeColor = new Color32(255, 255, 255, 255);
-        public Sprite ObjectiveSprite;
-        public Color ObjectiveSpriteColor;
+        public Color HexColor = new Color32(255, 255, 255, 255);
     }
-    public List<ColorPackInfo> BlockColorInfos = new List<ColorPackInfo>();
+    public List<ColorPackInfo> HexagonColorInfo = new List<ColorPackInfo>();
     public int GetColorEnumIndex(ColorInfo.ColorEnum ControlColorEnum)
     {
-        for (int i = 0; i < BlockColorInfos.Count; i++)
+        for (int i = 0; i < HexagonColorInfo.Count; i++)
         {
-            if (ControlColorEnum == BlockColorInfos[i].SelectedColorEnum)
+            if (ControlColorEnum == HexagonColorInfo[i].SelectedColorEnum)
             {
                 return i;
             }

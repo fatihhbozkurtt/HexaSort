@@ -4,7 +4,7 @@ using UnityEngine;
 public class HexagonController : MonoBehaviour
 {
     [SerializeField] ColorInfo.ColorEnum color;
-    [SerializeField] float moveDuration;
+  
     public void Initialize(ColorInfo.ColorEnum colorEnum, Material material)
     {
         color = colorEnum;
@@ -15,16 +15,11 @@ public class HexagonController : MonoBehaviour
     {
         return color;
     }
-
-    public void GoOtherCell(CellController targetCell, bool triggerEvent = false)
+    public void DestroySelf()
     {
-        targetCell.AddHex(this);
-        transform.DOMove(targetCell.GetVerticalPosForHex(), moveDuration).OnComplete(() =>
+        transform.DOScale(Vector3.zero, .25f).OnComplete(() =>
         {
-            transform.SetParent(targetCell.HexStackParent);
-            if (triggerEvent)
-                InputManager.instance.TriggerCheckPossibleMovesEvent();
+            Destroy(gameObject);
         });
     }
-
 }

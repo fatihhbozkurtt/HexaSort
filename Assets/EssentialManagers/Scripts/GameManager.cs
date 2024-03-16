@@ -16,6 +16,9 @@ public class GameManager : MonoSingleton<GameManager>
     public event System.Action LevelFailedEvent; // fired only on fail
     public event System.Action LevelAboutToChangeEvent; // fired just before next level load
 
+    public int BlastObjectveAmount;
+    GridManager _gridManager => GridManager.instance;
+
     protected override void Awake()
     {
         base.Awake();
@@ -92,5 +95,23 @@ public class GameManager : MonoSingleton<GameManager>
     public int GetTotalStagePlayed()
     {
         return PlayerPrefs.GetInt(cumulativeStagePlayedKey, 1);
+    }
+
+    public void CheckFailStatus()
+    {
+        int occupiedCellAmount = 0;
+        for (int i = 0; i < _gridManager.transform.childCount; i++)
+        {
+            CellController cell = _gridManager.transform.GetChild(i).GetComponent<CellController>();
+
+            if (cell.isOccupied)
+                occupiedCellAmount++;
+        }
+
+        Debug.LogWarning("Occupied cells: " + occupiedCellAmount);
+        if (occupiedCellAmount >= _gridManager.transform.childCount)
+        {
+            EndGame(success: false);
+        }
     }
 }

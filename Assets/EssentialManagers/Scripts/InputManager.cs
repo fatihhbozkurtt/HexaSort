@@ -4,7 +4,7 @@ public class InputManager : MonoSingleton<InputManager>
 {
     public event System.Action TouchStartEvent;
     public event System.Action TouchEndEvent;
-    public event System.Action CheckPossibleMovesEvent;
+    public event System.Action<PickableStack> StackPlacedOnGridEvent;
 
     public LayerMask PickibleLayer;
     [SerializeField] private bool blockPicking;
@@ -70,7 +70,7 @@ public class InputManager : MonoSingleton<InputManager>
                     PickableStack pickableStack = selectedPickable.GetComponent<PickableStack>();
                     if (pickableStack != null)
                     {
-                        pickableStack.PlaceObjectOnGrid(cellPosition);
+                        pickableStack.GetPlaced(cellPosition);
 
                     }
                 }
@@ -98,8 +98,8 @@ public class InputManager : MonoSingleton<InputManager>
         blockPicking = shouldBlock;
     }
 
-    public void TriggerCheckPossibleMovesEvent()
+    public void TriggerStackPlacedOnGridEvent(PickableStack stack)
     {
-        CheckPossibleMovesEvent?.Invoke();
+        StackPlacedOnGridEvent?.Invoke(stack);
     }
 }

@@ -7,7 +7,7 @@ public class GridClass : MonoBehaviour
     public int PosX;
     public int PosY;
     public bool isOpen;
-    public RollerClass GridContentList = new RollerClass();
+    public List<ColorInfo.ColorEnum> GridContentList = new();
 
     public GameObject GridObject;
 

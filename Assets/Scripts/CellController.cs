@@ -1,193 +1,314 @@
-using System;
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
-    public bool isOnAction;
     [Header("References")]
     public Transform HexStackParent;
 
     [Header("Debug")]
+    public bool IsAction;
     public bool isOccupied;
     [SerializeField] Vector2 _coordinates = Vector2.zero;
-    public List<CellController> neighbors = new List<CellController>();
 
     [Header("Hexagons Related")]
-    [SerializeField] ColorInfo.ColorEnum lastHexColor;
     [SerializeField] List<HexagonController> hexagons = new List<HexagonController>();
-    [SerializeField] List<HexagonController> hexToSendList = new List<HexagonController>();
-    HexSortWrapper hexSorter = new();
-    ColorInfo.ColorEnum firstColor;
-    CellController cellController;
-    private const float VERTICAL_PLACEMENT_OFFSET = 0.2f;
-    Dictionary<ColorInfo.ColorEnum, List<HexagonController>> colorToHexagonDict = new Dictionary<ColorInfo.ColorEnum, List<HexagonController>>();
-    IEnumerator Start()
+
+    public void Starter()
     {
-        yield return null;
-
-        SetNeighbours(GridManager.instance.FindNeighbors((int)_coordinates.x, (int)_coordinates.y));
-
         SetHexagonLists();
-        SeparateHexagonsByColor();
-
-        cellController = transform.GetComponent<CellController>();
-        InputManager.instance.CheckPossibleMovesEvent += OnCheckPossibleMoves;
     }
-
-    private void OnCheckPossibleMoves()
+    public IEnumerator ControlTransfer(float StartControlDelay)
     {
-        if (hexagons.Count < 1) return;
-
-        if (IsPure()) return; // ben root cell im, destination benim
-
-        if (hexagons.Count > 0) // Before every check last color should be updated
-            lastHexColor = GetLastColor();
-
-        List<CellController> neighbours = new();
-        neighbours.AddRange(cellController.neighbors);
-        bool breakLoop = false;
-
-        if (neighbours.Count == 0) Debug.LogWarning("No neighbour: " + neighbours.Count);
-
-        CellController targetNeighbor = null;
-        ColorInfo.ColorEnum neighbourLastColor = ColorInfo.ColorEnum.None;
-
-        for (int i = 0; i < neighbours.Count; i++)
+        //If There is Any Hex
+        if (hexagons.Count > 0)
         {
-            neighbourLastColor = neighbours[i].GetLastColor();
+            yield return new WaitForSeconds(StartControlDelay);
 
-            if (neighbourLastColor == lastHexColor)
+            //If There is opportunity to Blast
+            if (IsThereBlast())
             {
-                targetNeighbor = neighbours[i];
-                StartCoroutine(SendHexagonToNeighbor(hexToSendList, targetNeighbor));
-                breakLoop = true;
-                return;
+                //Create Blast Hex List
+                List<HexagonController> selectedHexList = new List<HexagonController>();
+                ColorInfo.ColorEnum topHexColor = hexagons[hexagons.Count - 1].GetColor();
+                selectedHexList.Add(hexagons[hexagons.Count - 1]);
+
+                for (int i = hexagons.Count - 2; i >= 0; i--)
+                {
+                    if (hexagons[i].GetColor() == topHexColor)
+                    {
+                        selectedHexList.Add(hexagons[i]);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                //Update GridPlan and GridClass
+                for (int i = 0; i < selectedHexList.Count; i++)
+                {
+                    hexagons.RemoveAt(hexagons.Count - 1);
+                    GridClass ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
+                    ThisGridClass.GridContentList.RemoveAt(ThisGridClass.GridContentList.Count - 1);
+                }
+
+                //Blast Rope Group
+                BlastSelectedHexList(selectedHexList);
+
+                //Wait Blast Complete Time
+                yield return new WaitForSeconds(0.36f);
+
+                SetOccupied(hexagons.Count > 0);
+                StartCoroutine(ControlTransfer(0));
+
+                GameManager.instance.CheckFailStatus();
             }
-
-            if (breakLoop) break;
-        }
-    }
-
-    bool IsPure()
-    {
-        bool isPure = true;
-
-        if (hexagons.Count > 1) // 1 den fazla eleman var
-        {
-            firstColor = hexagons[0].GetColor();
-
-            for (int i = 0; i < hexagons.Count; i++)
+            //If No Blast
+            else
             {
-                if (firstColor != hexagons[i].GetColor())
-                    return isPure = false;
+                ColorInfo.ColorEnum TopRopeColor = hexagons[hexagons.Count - 1].GetColor();
+                GridManager.TransferType SendOrTake = GridManager.TransferType.Take;
+                List<Vector2> NeighboursCoordinateList = GridManager.instance.GetNeighboursCoordinates(GetCoordinates());
+                List<Vector2> SelectedNeighbours = new List<Vector2>();
+                Vector2 SelectedNeighbour = Vector2.zero;
+
+                //Control All Finded Neighbours Cells
+                for (int i = 0; i < NeighboursCoordinateList.Count; i++)
+                {
+                    int NeighbourPosX = (int)NeighboursCoordinateList[i].x;
+                    int NeighbourPosY = (int)NeighboursCoordinateList[i].y;
+                    GridClass ControlNeighbourGrid = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY];
+                    CellController ControlNeighbourGridPart = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY].GridObject.GetComponent<CellController>();
+
+                    //If Cell Open And Have a Hexagon
+                    if (ControlNeighbourGrid.isOpen && ControlNeighbourGrid.GridContentList.Count > 0)
+                    {
+                        //If Hexagon Colors Matched
+                        if (TopRopeColor == ControlNeighbourGridPart.hexagons[ControlNeighbourGridPart.hexagons.Count - 1].GetColor())
+                        {
+                            SelectedNeighbours.Add(new Vector2(NeighbourPosX, NeighbourPosY));
+                        }
+                    }
+                }
+
+                //If There Is Possible Moves
+                if (SelectedNeighbours.Count > 0)
+                {
+                    //Set Selected Neighbours To First Finded
+                    SelectedNeighbour = SelectedNeighbours[0];
+
+                    //Check Selected Neighbours Pure Status
+                    for (int i = 0; i < SelectedNeighbours.Count; i++)
+                    {
+                        if (GridManager.instance.GridPlan[(int)SelectedNeighbours[i].x, (int)SelectedNeighbours[i].y].GridObject.GetComponent<CellController>().IsPure() && !IsPure())
+                        {
+                            SendOrTake = GridManager.TransferType.Send;
+                            SelectedNeighbour = SelectedNeighbours[i];
+                            break;
+                        }
+                    }
+
+                    //If Transfer Type is "Take" and There is Other Color Rope, Control Second Color Transfer is Possible
+                    if (SendOrTake == GridManager.TransferType.Take)
+                    {
+                        /*
+                        bool IsThereOtherColor = false;
+
+                        for (int i = 0; i < NeighboursCoordinateList.Count; i++)
+                        {
+                            int NeighbourPosX = (int)NeighboursCoordinateList[i].x;
+                            int NeighbourPosY = (int)NeighboursCoordinateList[i].y;
+                            GridClass ControlNeighbourGrid = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY];
+                            GridPart ControlNeighbourGridPart = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY].GridObject.GetComponent<GridPart>();
+
+                            //If Grid Open And Have a Rope
+                            if (ControlNeighbourGrid.IsGridOpen && ControlNeighbourGrid.GridContentList.Count > 0)
+                            {
+                                //If Rope Colors Matched
+                                if (topHexColor == ControlNeighbourGridPart.hexagons[ControlNeighbourGridPart.hexagons.Count - 1].GetComponent<RopePart>().HexColor)
+                                {
+                                    SelectedNeighbours.Add(new Vector2(NeighbourPosX, NeighbourPosY));
+                                }
+                            }
+                        }
+                        */
+                    }
+
+                    CellController SelectedGridPart = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y].GridObject.GetComponent<CellController>();
+                    GridClass SelectedGridClass = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y];
+                    GridClass ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
+
+                    //Change Action Situations
+                    IsAction = true;
+                    SelectedGridPart.IsAction = true;
+
+                    //Take
+                    if (SendOrTake == GridManager.TransferType.Take)
+                    {
+                        //Create Take Rope List
+                        List<HexagonController> WillTakeRopeList = new List<HexagonController>();
+                        for (int i = SelectedGridPart.hexagons.Count - 1; i >= 0; i--)
+                        {
+                            if (SelectedGridPart.hexagons[i].GetColor() == TopRopeColor)
+                            {
+                                WillTakeRopeList.Add(SelectedGridPart.hexagons[i]);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        //Update Grid Classes
+                        for (int i = 0; i < WillTakeRopeList.Count; i++)
+                        {
+                            ThisGridClass.GridContentList.Add(SelectedGridClass.GridContentList[SelectedGridClass.GridContentList.Count - 1]);
+                            SelectedGridClass.GridContentList.RemoveAt(SelectedGridClass.GridContentList.Count - 1);
+                        }
+
+                        //Move Rope Objects
+                        for (int i = 0; i < WillTakeRopeList.Count; i++)
+                        {
+                            WillTakeRopeList[i].transform.SetParent(HexStackParent);
+                            WillTakeRopeList[i].transform.DOLocalMove(new Vector3(0, hexagons.Count * GridManager.instance.VERTICAL_PLACEMENT_OFFSET, 0), 0.3f);
+
+                            hexagons.Add(WillTakeRopeList[i]);
+                            SelectedGridPart.hexagons.RemoveAt(SelectedGridPart.hexagons.Count - 1);
+
+                            yield return new WaitForSeconds(0.06f);
+                        }
+
+                        SetOccupied(hexagons.Count > 0);
+                    }
+
+                    //Send
+                    else if (SendOrTake == GridManager.TransferType.Send)
+                    {
+                        //Create Send Rope List
+                        List<HexagonController> WillSendRopeList = new List<HexagonController>();
+                        for (int i = hexagons.Count - 1; i >= 0; i--)
+                        {
+                            if (hexagons[i].GetColor() == TopRopeColor)
+                            {
+                                WillSendRopeList.Add(hexagons[i]);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        //Update Grid Classes
+                        for (int i = 0; i < WillSendRopeList.Count; i++)
+                        {
+                            SelectedGridClass.GridContentList.Add(ThisGridClass.GridContentList[ThisGridClass.GridContentList.Count - 1]);
+                            ThisGridClass.GridContentList.RemoveAt(ThisGridClass.GridContentList.Count - 1);
+                        }
+
+                        //Move Hex Objects
+                        for (int i = 0; i < WillSendRopeList.Count; i++)
+                        {
+                            WillSendRopeList[i].transform.SetParent(SelectedGridPart.HexStackParent);
+                            WillSendRopeList[i].transform.DOLocalMove(new Vector3(0, SelectedGridPart.hexagons.Count * GridManager.instance.VERTICAL_PLACEMENT_OFFSET, 0), 0.3f);
+
+                            SelectedGridPart.hexagons.Add(WillSendRopeList[i]);
+                            hexagons.RemoveAt(hexagons.Count - 1);
+
+                            yield return new WaitForSeconds(0.06f);
+                        }
+
+                        //If There Is No Hex In This Cell Set Occupation Status
+                        SetOccupied(hexagons.Count > 0);
+                    }
+
+                    //Wait Transfer Complete Time
+                    yield return new WaitForSeconds(0.36f);
+
+                    StartCoroutine(ControlTransfer(0));
+                    StartCoroutine(SelectedGridPart.ControlTransfer(0));
+                }
+                else
+                {
+                    IsAction = false;
+                    GameManager.instance.CheckFailStatus();
+                }
             }
         }
         else
         {
-            isPure = false;
+            IsAction = false;
+            isOccupied = false;
+            GameManager.instance.CheckFailStatus();
         }
-        return isPure;
     }
-
-    public void UpdateHexagonsList(List<HexagonController> hexes)
+    public bool IsThereBlast()
     {
-        hexagons.Clear();
-        hexagons.AddRange(hexes);
-        SeparateHexagonsByColor();
 
-        lastHexColor = hexagons[hexagons.Count - 1].GetColor();
+        bool performBlast = false;
+        if (IsPure())
+        {
+            if (hexagons.Count >= GameManager.instance.BlastObjectveAmount)
+                performBlast = true;
+
+        }
+        //if (hexagons.Count > 1)
+        //{
+        //    int matchCount = 0;
+        //    ColorInfo.ColorEnum TopRopeColor = hexagons[hexagons.Count - 1].GetColor();
+        //    for (int i = hexagons.Count - 2; i >= 0; i--)
+        //    {
+        //        if (hexagons[i].GetColor() == TopRopeColor)
+        //        {
+        //            matchCount++;
+        //        }
+        //        else
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    if (matchCount >= GameManager.instance.BlastObjectveAmount)
+        //    {
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
+
+        return performBlast;
     }
-
-    // Check if the top hexagon of this cell's stack can be sent to the neighbor
-    //public void CheckAndSendHexagonToNeighbor(CellController neighbor)
-    //{
-    //    if (hexagons.Count > 0 && neighbor != null && neighbor.hexagons.Count > 0)
-    //    {
-    //        HexagonController myHexagon = hexagons[hexagons.Count - 1]; // Get the top hexagon from this cell's stack
-    //        HexagonController neighborHexagon = neighbor.hexagons[neighbor.hexagons.Count - 1]; // Get the top hexagon from the neighbor's stack
-
-    //        if (myHexagon.GetColor() == neighborHexagon.GetColor()) // Check if the colors match
-    //        {
-    //            SendHexagonToNeighbor(neighbor, myHexagon); // Send the hexagon to the neighbor
-    //        }
-    //    }
-    //}
-
-    #region Send & Receive Hexagons
-    private void SendHexagonToNeighbor(CellController neighbor, HexagonController hexagon)
+    bool IsPure()
     {
-        HexagonController removedHex = GetLastHexagon();
-        ColorInfo.ColorEnum hexColor = GetLastHexagon().GetColor();
-        hexagons.Remove(removedHex);
-        colorToHexagonDict[hexColor].Remove(removedHex);
-        neighbor.hexagons.Add(hexagon);
-    }
-
-
-    // Send the given hexagon to the neighbor cell
-    private IEnumerator SendHexagonToNeighbor(List<HexagonController> hexToSendList, CellController neighbor)
-    {
+        ColorInfo.ColorEnum TopRopeColor = hexagons[hexagons.Count - 1].GetColor();
         for (int i = hexagons.Count - 1; i >= 0; i--)
         {
-            HexagonController hex = hexagons[i];
-
-            if (hex.GetColor() == neighbor.GetLastColor())
-                hexToSendList.Add(hex);
-            else
-                break;
-            
-        }
-
-        yield return new WaitUntil(() => hexToSendList.Count > 0);
-
-        Debug.Log("BOK, " + hexToSendList.Count);
-
-        for (int i = 0; i < hexToSendList.Count; i++)
-        {
-            HexagonController hex = hexToSendList[i];
-
-            //if (GetLastHexagon() != colorToHexagonDict[hex.GetColor()][colorToHexagonDict[hex.GetColor()].Count - 1])
-            //{
-            //    Debug.Log("Bok");
-            //    break;
-            //}
-
-
-            hexagons.Remove(hex);
-
-            colorToHexagonDict[hex.GetColor()].Remove(hex);
-
-            hex.GoOtherCell(neighbor,
-                triggerEvent: i == hexToSendList.Count - 1);
-
-            yield return new WaitForSeconds(.1f);
-        }
-        isOccupied = hexagons.Count > 0 ? true : false;
-        this.hexToSendList.Clear();
-    }
-
-    private void RecieveHexagonsFromNeighbor()
-    {
-
-    }
-    #endregion
-
-    private void SeparateHexagonsByColor()
-    {
-        if (hexagons.Count < 1) return;
-        for (int i = 0; i < hexagons.Count; i++)
-        {
-            HexagonController hex = hexagons[i];
-            ColorInfo.ColorEnum color = hex.GetColor();
-
-            if (!colorToHexagonDict.ContainsKey(color))
+            if (hexagons[i].GetColor() != TopRopeColor)
             {
-                colorToHexagonDict[color] = new List<HexagonController>();
+                return false;
             }
-            colorToHexagonDict[color].Add(hex);
+        }
+
+        return true;
+    }
+    public void BlastSelectedHexList(List<HexagonController> hexList)
+    {
+        for (int i = 0; i < hexList.Count; i++)
+        {
+            hexList[i].DestroySelf();
+        }
+
+        CanvasManager.instance.UpdateScoreText();
+    }
+    public void UpdateHexagonsList(List<HexagonController> hexes)
+    {
+        for (int i = 0; i < hexes.Count; i++)
+        {
+            hexagons.Add(hexes[i]);
+            hexes[i].transform.SetParent(HexStackParent);
+            GridManager.instance.GridPlan[(int)_coordinates.x, (int)_coordinates.y].GridContentList.Add(hexes[i].GetColor());
         }
     }
 
@@ -198,14 +319,6 @@ public class CellController : MonoBehaviour
             hexagons.Add(hex);
     }
     // GETTERS
-    public ColorInfo.ColorEnum GetLastColor()
-    {
-        ColorInfo.ColorEnum lastHexColor =
-            hexagons.Count > 0 ?
-            GetLastHexagon().GetColor() :
-            ColorInfo.ColorEnum.None;
-        return lastHexColor;
-    }
     public Vector2 GetCoordinates()
     {
         return _coordinates;
@@ -217,17 +330,10 @@ public class CellController : MonoBehaviour
     }
     public Vector3 GetVerticalPosForHex()
     {
-        float verticalOffset = (hexagons.Count - 1) * VERTICAL_PLACEMENT_OFFSET;
+        float verticalOffset = (hexagons.Count - 1) * GridManager.instance.VERTICAL_PLACEMENT_OFFSET;
         Vector3 pos = new Vector3(0, verticalOffset, 0);
 
         return GetCenter() + pos;
-    }
-    HexagonController GetLastHexagon()
-    {
-        if (hexagons.Count == 0)
-            return null;
-        else
-            return hexagons[hexagons.Count - 1];
     }
 
     // SETTERS
@@ -238,35 +344,6 @@ public class CellController : MonoBehaviour
             HexagonController hexagonController = hex.GetComponent<HexagonController>();
             hexagons.Add(hexagonController);
         }
-        //for (int i = 0; i < hexagons.Count; i++)
-        //{
-        //    HexagonController hex = hexagons[i];
-
-        //    switch (hex.GetColor())
-        //    {
-        //        case ColorInfo.ColorEnum.RED
-        //            :
-        //            hexSorter.Red.Add(hex);
-        //            break;
-        //        case ColorInfo.ColorEnum.YELLOW
-        //            :
-        //            hexSorter.Yellow.Add(hex);
-        //            break;
-        //        case ColorInfo.ColorEnum.BLUE
-        //            :
-        //            hexSorter.Blue.Add(hex);
-        //            break;
-        //        case ColorInfo.ColorEnum.GREEN
-        //            :
-        //            hexSorter.Green.Add(hex);
-        //            break;
-        //        case ColorInfo.ColorEnum.PURPLE
-        //            :
-        //            hexSorter.Purple.Add(hex);
-        //            break;
-
-        //    }
-        //}
     }
     public void SetCoordinates(float x, float y)
     {
@@ -277,19 +354,5 @@ public class CellController : MonoBehaviour
     {
         isOccupied = state;
     }
-    void SetNeighbours(List<CellController> _neighbors)
-    {
-        neighbors.AddRange(_neighbors);
-    }
     #endregion
-}
-
-[Serializable]
-public class HexSortWrapper
-{
-    public List<HexagonController> Red;
-    public List<HexagonController> Yellow;
-    public List<HexagonController> Blue;
-    public List<HexagonController> Green;
-    public List<HexagonController> Purple;
 }
