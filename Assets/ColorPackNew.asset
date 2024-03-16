@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e695a545a441d4daa576bf923af5af, type: 3}
+  m_Name: ColorPackNew
+  m_EditorClassIdentifier: 
+  BlockColorInfos:
+  - SelectedColorEnum: 0
+    RopeColor: {r: 0, g: 0, b: 0, a: 0}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 0}
+  - SelectedColorEnum: 1
+    RopeColor: {r: 1, g: 0, b: 0, a: 1}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 0}
+  - SelectedColorEnum: 2
+    RopeColor: {r: 1, g: 0.9532509, b: 0, a: 1}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 0}
+  - SelectedColorEnum: 3
+    RopeColor: {r: 0, g: 0.6209738, b: 1, a: 1}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 0}
+  - SelectedColorEnum: 4
+    RopeColor: {r: 1, g: 0, b: 0.87729645, a: 0}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 1}
+  - SelectedColorEnum: 5
+    RopeColor: {r: 0.09451604, g: 1, b: 0, a: 1}
+    ObjectiveSprite: {fileID: 0}
+    ObjectiveSpriteColor: {r: 0, g: 0, b: 0, a: 0}
