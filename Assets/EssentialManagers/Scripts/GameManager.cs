@@ -16,7 +16,7 @@ public class GameManager : MonoSingleton<GameManager>
     public event System.Action LevelFailedEvent; // fired only on fail
     public event System.Action LevelAboutToChangeEvent; // fired just before next level load
 
-    //  public int BlastObjectveAmount;
+    public int BlastObjectiveAmount;
     public int MaxTargetScore;
     GridManager _gridManager => GridManager.instance;
     private void Start()

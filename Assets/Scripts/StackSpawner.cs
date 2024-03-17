@@ -10,15 +10,15 @@ public class StackSpawner : MonoSingleton<StackSpawner>
     [SerializeField] HexagonController hexagonPrefab;
 
     [Header("References")]
-    [SerializeField] int[] scoreTresholds;
+    [SerializeField] List<int> scoreTresholds;
 
     [Header("Debug")]
     [SerializeField] int maxColorVarierty;
+    [SerializeField] int tresholdIndex;
     [Tooltip("Only for demonstration, do not modify this region")]
     [SerializeField] Transform[] spawnPoints;
     [SerializeField] List<Transform> stacks;
     const int _count = 3;
-    int tresholdIndex;
 
     protected override void Awake()
     {
@@ -42,10 +42,14 @@ public class StackSpawner : MonoSingleton<StackSpawner>
             // color enum count, -1 because exlude NONE satus
             if (Enum.GetNames(typeof(ColorInfo.ColorEnum)).Length - 1 > maxColorVarierty)
             {
-                tresholdIndex = tresholdIndex >= scoreTresholds.Length ? scoreTresholds.Length - 1 : tresholdIndex++;
+                if (tresholdIndex < scoreTresholds.Count - 1)
+                    tresholdIndex++;
+
                 maxColorVarierty++;
             }
         }
+
+        if (maxColorVarierty == 5) CanvasManager.instance.ScoreUpdatedEvent -= OnScoreUpdated;
     }
 
     private void OnStackPlaced(PickableStack stackToRemove)

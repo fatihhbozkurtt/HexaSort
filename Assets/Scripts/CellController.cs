@@ -246,11 +246,10 @@ public class CellController : MonoBehaviour
     }
     public bool IsThereBlast()
     {
-
         bool performBlast = false;
         if (IsPure())
         {
-            if (hexagons.Count >= GridManager.instance.transform.childCount)
+            if (hexagons.Count >= GameManager.instance.BlastObjectiveAmount)
                 performBlast = true;
 
         }
@@ -270,7 +269,7 @@ public class CellController : MonoBehaviour
         //        }
         //    }
 
-        //    if (matchCount >= GameManager.instance.BlastObjectveAmount)
+        //    if (matchCount >= GameManager.instance.BlastObjectiveAmount)
         //    {
         //        return true;
         //    }
