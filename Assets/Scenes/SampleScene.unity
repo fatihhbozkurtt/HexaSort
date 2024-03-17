@@ -2120,8 +2120,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stackPrefab: {fileID: 115833996389209442, guid: 2739d4e9418487e4b9de4b1c0f43e465, type: 3}
   hexagonPrefab: {fileID: 3584488951406615420, guid: 7d30b1e689ca5b84999495dac2774721, type: 3}
-  scoreTresholds: 1e0000003c0000005a000000
-  maxColorVarierty: 3
+  scoreTresholds: 2800000050000000
+  maxColorVarierty: 4
   spawnPoints: []
   stacks: []
 --- !u!1 &2126519173
@@ -2216,23 +2216,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14
+      value: 11.8
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.5
+      value: -9.75
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 0.8746197
       objectReference: {fileID: 0}
     - target: {fileID: 4875300527698177765, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.7071068
+      value: 0.4848096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5776085555687450331, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6541066755635005487, guid: 3ed0971d5888c614fbae05154be0586c, type: 3}
       propertyPath: m_LocalPosition.x

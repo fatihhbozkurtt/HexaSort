@@ -35,6 +35,8 @@ public class InputManager : MonoSingleton<InputManager>
 
     void Update()
     {
+        if (!GameManager.instance.isLevelActive) return;
+
         // Check for mouse input
         if (Input.GetMouseButtonDown(0))
         {

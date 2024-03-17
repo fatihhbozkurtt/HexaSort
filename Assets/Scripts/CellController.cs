@@ -47,12 +47,12 @@ public class CellController : MonoBehaviour
                     }
                 }
 
-                //Update GridPlan and GridClass
+                //Update GridPlan and CellData
                 for (int i = 0; i < selectedHexList.Count; i++)
                 {
                     hexagons.RemoveAt(hexagons.Count - 1);
-                    GridClass ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
-                    ThisGridClass.GridContentList.RemoveAt(ThisGridClass.GridContentList.Count - 1);
+                    CellData ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
+                    ThisGridClass.CellContentList.RemoveAt(ThisGridClass.CellContentList.Count - 1);
                 }
 
                 //Blast Rope Group
@@ -80,11 +80,11 @@ public class CellController : MonoBehaviour
                 {
                     int NeighbourPosX = (int)NeighboursCoordinateList[i].x;
                     int NeighbourPosY = (int)NeighboursCoordinateList[i].y;
-                    GridClass ControlNeighbourGrid = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY];
-                    CellController ControlNeighbourGridPart = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY].GridObject.GetComponent<CellController>();
+                    CellData ControlNeighbourGrid = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY];
+                    CellController ControlNeighbourGridPart = GridManager.instance.GridPlan[NeighbourPosX, NeighbourPosY].CellObject.GetComponent<CellController>();
 
                     //If Cell Open And Have a Hexagon
-                    if (ControlNeighbourGrid.isOpen && ControlNeighbourGrid.GridContentList.Count > 0)
+                    if (ControlNeighbourGrid.isOpen && ControlNeighbourGrid.CellContentList.Count > 0)
                     {
                         //If Hexagon Colors Matched
                         if (TopRopeColor == ControlNeighbourGridPart.hexagons[ControlNeighbourGridPart.hexagons.Count - 1].GetColor())
@@ -103,7 +103,7 @@ public class CellController : MonoBehaviour
                     //Check Selected Neighbours Pure Status
                     for (int i = 0; i < SelectedNeighbours.Count; i++)
                     {
-                        if (GridManager.instance.GridPlan[(int)SelectedNeighbours[i].x, (int)SelectedNeighbours[i].y].GridObject.GetComponent<CellController>().IsPure() && !IsPure())
+                        if (GridManager.instance.GridPlan[(int)SelectedNeighbours[i].x, (int)SelectedNeighbours[i].y].CellObject.GetComponent<CellController>().IsPure() && !IsPure())
                         {
                             SendOrTake = GridManager.TransferType.Send;
                             SelectedNeighbour = SelectedNeighbours[i];
@@ -121,11 +121,11 @@ public class CellController : MonoBehaviour
                         {
                             int NeighbourPosX = (int)NeighboursCoordinateList[i].x;
                             int NeighbourPosY = (int)NeighboursCoordinateList[i].y;
-                            GridClass ControlNeighbourGrid = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY];
-                            GridPart ControlNeighbourGridPart = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY].GridObject.GetComponent<GridPart>();
+                            CellData ControlNeighbourGrid = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY];
+                            GridPart ControlNeighbourGridPart = GridManager.instance.I.GridPlan[NeighbourPosX, NeighbourPosY].CellObject.GetComponent<GridPart>();
 
                             //If Grid Open And Have a Rope
-                            if (ControlNeighbourGrid.IsGridOpen && ControlNeighbourGrid.GridContentList.Count > 0)
+                            if (ControlNeighbourGrid.IsGridOpen && ControlNeighbourGrid.CellContentList.Count > 0)
                             {
                                 //If Rope Colors Matched
                                 if (topHexColor == ControlNeighbourGridPart.hexagons[ControlNeighbourGridPart.hexagons.Count - 1].GetComponent<RopePart>().HexColor)
@@ -137,9 +137,9 @@ public class CellController : MonoBehaviour
                         */
                     }
 
-                    CellController SelectedGridPart = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y].GridObject.GetComponent<CellController>();
-                    GridClass SelectedGridClass = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y];
-                    GridClass ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
+                    CellController SelectedGridPart = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y].CellObject.GetComponent<CellController>();
+                    CellData SelectedGridClass = GridManager.instance.GridPlan[(int)SelectedNeighbour.x, (int)SelectedNeighbour.y];
+                    CellData ThisGridClass = GridManager.instance.GridPlan[(int)GetCoordinates().x, (int)GetCoordinates().y];
 
                     //Change Action Situations
                     IsAction = true;
@@ -165,8 +165,8 @@ public class CellController : MonoBehaviour
                         //Update Grid Classes
                         for (int i = 0; i < WillTakeRopeList.Count; i++)
                         {
-                            ThisGridClass.GridContentList.Add(SelectedGridClass.GridContentList[SelectedGridClass.GridContentList.Count - 1]);
-                            SelectedGridClass.GridContentList.RemoveAt(SelectedGridClass.GridContentList.Count - 1);
+                            ThisGridClass.CellContentList.Add(SelectedGridClass.CellContentList[SelectedGridClass.CellContentList.Count - 1]);
+                            SelectedGridClass.CellContentList.RemoveAt(SelectedGridClass.CellContentList.Count - 1);
                         }
 
                         //Move Rope Objects
@@ -204,8 +204,8 @@ public class CellController : MonoBehaviour
                         //Update Grid Classes
                         for (int i = 0; i < WillSendRopeList.Count; i++)
                         {
-                            SelectedGridClass.GridContentList.Add(ThisGridClass.GridContentList[ThisGridClass.GridContentList.Count - 1]);
-                            ThisGridClass.GridContentList.RemoveAt(ThisGridClass.GridContentList.Count - 1);
+                            SelectedGridClass.CellContentList.Add(ThisGridClass.CellContentList[ThisGridClass.CellContentList.Count - 1]);
+                            ThisGridClass.CellContentList.RemoveAt(ThisGridClass.CellContentList.Count - 1);
                         }
 
                         //Move Hex Objects
@@ -250,7 +250,7 @@ public class CellController : MonoBehaviour
         bool performBlast = false;
         if (IsPure())
         {
-            if (hexagons.Count >= GameManager.instance.BlastObjectveAmount)
+            if (hexagons.Count >= GridManager.instance.transform.childCount)
                 performBlast = true;
 
         }
@@ -308,7 +308,7 @@ public class CellController : MonoBehaviour
         {
             hexagons.Add(hexes[i]);
             hexes[i].transform.SetParent(HexStackParent);
-            GridManager.instance.GridPlan[(int)_coordinates.x, (int)_coordinates.y].GridContentList.Add(hexes[i].GetColor());
+            GridManager.instance.GridPlan[(int)_coordinates.x, (int)_coordinates.y].CellContentList.Add(hexes[i].GetColor());
         }
     }
 

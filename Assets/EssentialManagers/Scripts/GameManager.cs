@@ -16,8 +16,19 @@ public class GameManager : MonoSingleton<GameManager>
     public event System.Action LevelFailedEvent; // fired only on fail
     public event System.Action LevelAboutToChangeEvent; // fired just before next level load
 
-    public int BlastObjectveAmount;
+    //  public int BlastObjectveAmount;
+    public int MaxTargetScore;
     GridManager _gridManager => GridManager.instance;
+    private void Start()
+    {
+        CanvasManager.instance.ScoreUpdatedEvent += OnScoreUpdated;
+    }
+
+    private void OnScoreUpdated(int score)
+    {
+        if (score >= MaxTargetScore)
+            EndGame(success: true);
+    }
 
     protected override void Awake()
     {
@@ -107,8 +118,6 @@ public class GameManager : MonoSingleton<GameManager>
             if (cell.isOccupied)
                 occupiedCellAmount++;
         }
-
-        Debug.LogWarning("Occupied cells: " + occupiedCellAmount);
         if (occupiedCellAmount >= _gridManager.transform.childCount)
         {
             EndGame(success: false);

@@ -19,7 +19,7 @@ public class GridManager : MonoSingleton<GridManager>
     [SerializeField] int _gridSizeY = 0;
 
     [Header("Debug")]
-    public GridClass[,] GridPlan;
+    public CellData[,] GridPlan;
     private const float CELL_HORIZONTAL_OFFSET = 0.75f;
     private const float CELL_VERTICAL_OFFSET = 0.8660254f;
     public float VERTICAL_PLACEMENT_OFFSET = 0.2f;
@@ -37,12 +37,12 @@ public class GridManager : MonoSingleton<GridManager>
             DestroyPreviousGrid();
         }
 
-        GridPlan = new GridClass[_gridSizeX, _gridSizeY];
+        GridPlan = new CellData[_gridSizeX, _gridSizeY];
         for (int x = 0; x < _gridSizeX; x++)
         {
             for (int y = 0; y < _gridSizeY; y++)
             {
-                GridPlan[x, y] = new GridClass();
+                GridPlan[x, y] = new CellData();
 
                 int index;
                 GridPlan[x, y].PosX = x;
@@ -51,12 +51,12 @@ public class GridManager : MonoSingleton<GridManager>
                 if (ContainsInStartInfo(x, y, out index))
                 {
                     GridPlan[x, y].isOpen = startInfos[index].isOpen;
-                    GridPlan[x, y].GridContentList = startInfos[index].ContentInfo;
+                    GridPlan[x, y].CellContentList = startInfos[index].ContentInfo;
                 }
                 else
                 {
                     GridPlan[x, y].isOpen = true;
-                    GridPlan[x, y].GridContentList = new();
+                    GridPlan[x, y].CellContentList = new();
                 }
 
                 if (GridPlan[x, y].isOpen)
@@ -66,7 +66,7 @@ public class GridManager : MonoSingleton<GridManager>
                         new Vector3(x * CELL_HORIZONTAL_OFFSET, 0,
                         -(((x % 2) * (CELL_VERTICAL_OFFSET / 2)) + y * CELL_VERTICAL_OFFSET));
 
-                    GridPlan[x, y].GridObject = cloneCellGO;
+                    GridPlan[x, y].CellObject = cloneCellGO;
 
                     cloneCellGO.name = x.ToString() + "," + y.ToString();
                     CellController cellController = cloneCellGO.GetComponent<CellController>();
@@ -74,12 +74,12 @@ public class GridManager : MonoSingleton<GridManager>
 
                 }
 
-                if (GridPlan[x, y].GridContentList.Count != 0 && GridPlan[x, y].isOpen)
+                if (GridPlan[x, y].CellContentList.Count != 0 && GridPlan[x, y].isOpen)
                 {
-                    CellController cellParent = GridPlan[x, y].GridObject.GetComponent<CellController>();
-                    for (int i = 0; i < GridPlan[x, y].GridContentList.Count; i++)
+                    CellController cellParent = GridPlan[x, y].CellObject.GetComponent<CellController>();
+                    for (int i = 0; i < GridPlan[x, y].CellContentList.Count; i++)
                     {
-                        ColorInfo.ColorEnum color = GridPlan[x, y].GridContentList[i];
+                        ColorInfo.ColorEnum color = GridPlan[x, y].CellContentList[i];
                         Material mat = new Material(BlockMaterial);
                         mat.color = colorPack.HexagonColorInfo[colorPack.GetColorEnumIndex(color)].HexColor;
 
@@ -94,7 +94,7 @@ public class GridManager : MonoSingleton<GridManager>
                     cellParent.SetOccupied(true);
                 }
                 if (GridPlan[x, y].isOpen)
-                    GridPlan[x, y].GridObject.GetComponent<CellController>().Starter();
+                    GridPlan[x, y].CellObject.GetComponent<CellController>().Starter();
             }
         }
     }
@@ -105,7 +105,7 @@ public class GridManager : MonoSingleton<GridManager>
         {
             for (int y = 0; y < GridPlan.GetLength(1); y++)
             {
-                Destroy(GridPlan[x, y].GridObject);
+                Destroy(GridPlan[x, y].CellObject);
             }
         }
     }
@@ -177,7 +177,7 @@ public class GridManager : MonoSingleton<GridManager>
             bool isValid = coord.x >= 0 && coord.x < GridPlan.GetLength(0) &&
                            coord.y >= 0 && coord.y < GridPlan.GetLength(1);
 
-            return isValid && GridPlan[(int)coord.x, (int)coord.y].isOpen && !GridPlan[(int)coord.x, (int)coord.y].GridObject.GetComponent<CellController>().IsAction;
+            return isValid && GridPlan[(int)coord.x, (int)coord.y].isOpen && !GridPlan[(int)coord.x, (int)coord.y].CellObject.GetComponent<CellController>().IsAction;
         }
 
         return neighbourList;

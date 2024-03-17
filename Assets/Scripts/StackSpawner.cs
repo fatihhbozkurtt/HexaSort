@@ -23,7 +23,7 @@ public class StackSpawner : MonoSingleton<StackSpawner>
     protected override void Awake()
     {
         base.Awake();
-        maxColorVarierty = 2;
+        maxColorVarierty = 3;
         spawnPoints = GetComponentsInChildren<Transform>();
     }
 
@@ -91,6 +91,9 @@ public class StackSpawner : MonoSingleton<StackSpawner>
             }
         }
     }
+
+    #region GETTERS
+
     ColorInfo.ColorEnum GetRandomColor()
     {
 
@@ -103,6 +106,7 @@ public class StackSpawner : MonoSingleton<StackSpawner>
         return Random.Range(min, max);
     }
 
+    #endregion
 }
 
 [Serializable]
