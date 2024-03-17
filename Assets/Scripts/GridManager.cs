@@ -7,12 +7,12 @@ public class GridManager : MonoSingleton<GridManager>
         Send, Take
     };
 
-
     [Header("References")]
     [SerializeField] GameObject CellPrefab;
     [SerializeField] HexagonController hexagonBlockPrefab;
     public Material BlockMaterial;
     public ColorPack colorPack;
+    public LayerMask CellLayer;
 
     [Header("Configuration")]
     [SerializeField] int _gridSizeX = 0;
@@ -27,9 +27,15 @@ public class GridManager : MonoSingleton<GridManager>
 
     public void Start()
     {
+        startInfos = new();
+     
+        for (int i = 0; i < InfoManager.instance.GetCurrentInfo().startInfos.Count; i++)
+        {
+            startInfos.Add(InfoManager.instance.GetCurrentInfo().startInfos[i]);
+        }
+
         GenerateGrid();
     }
-
     public void GenerateGrid()
     {
         if (GridPlan != null)
@@ -84,7 +90,7 @@ public class GridManager : MonoSingleton<GridManager>
                         mat.color = colorPack.HexagonColorInfo[colorPack.GetColorEnumIndex(color)].HexColor;
 
 
-                        SpawnBlock(i,
+                        SpawnHexagon(i,
                            cellParent.transform.position,
                            cellParent.HexStackParent,
                             mat,
@@ -98,7 +104,6 @@ public class GridManager : MonoSingleton<GridManager>
             }
         }
     }
-
     private void DestroyPreviousGrid()
     {
         for (int x = 0; x < GridPlan.GetLength(0); x++)
@@ -109,8 +114,7 @@ public class GridManager : MonoSingleton<GridManager>
             }
         }
     }
-
-    void SpawnBlock(int index, Vector3 gridPos, Transform parent, Material mat, ColorInfo.ColorEnum color)
+    public void SpawnHexagon(int index, Vector3 gridPos, Transform parent, Material mat, ColorInfo.ColorEnum color)
     {
         float verticalPos = (index + 1) * VERTICAL_PLACEMENT_OFFSET;
         Vector3 spawnPos = gridPos + new Vector3(0, verticalPos, 0);
@@ -182,11 +186,13 @@ public class GridManager : MonoSingleton<GridManager>
 
         return neighbourList;
     }
-}
-[System.Serializable]
-public class StartInfo
-{
-    public Vector2Int Coordinates;
-    public List<ColorInfo.ColorEnum> ContentInfo;
-    public bool isOpen;
+
+
+    [System.Serializable]
+    public class StartInfo
+    {
+        public Vector2Int Coordinates;
+        public List<ColorInfo.ColorEnum> ContentInfo;
+        public bool isOpen;
+    }
 }

@@ -1,21 +1,25 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
     [Header("References")]
     public Transform HexStackParent;
+    public GameObject opaqueMesh;
+    public GameObject transparentMesh;
 
     [Header("Debug")]
     public bool IsAction;
     public bool isOccupied;
+    public bool isOpen = true;
     [SerializeField] Vector2 _coordinates = Vector2.zero;
 
     [Header("Hexagons Related")]
     [SerializeField] List<HexagonController> hexagons = new List<HexagonController>();
-
+    public List<ColorInfo.ColorEnum> contentInfo;
     public void Starter()
     {
         SetHexagonLists();
@@ -243,6 +247,7 @@ public class CellController : MonoBehaviour
             isOccupied = false;
             GameManager.instance.CheckFailStatus();
         }
+        GameManager.instance.CheckFailStatus();
     }
     public bool IsThereBlast()
     {
@@ -310,7 +315,15 @@ public class CellController : MonoBehaviour
             GridManager.instance.GridPlan[(int)_coordinates.x, (int)_coordinates.y].CellContentList.Add(hexes[i].GetColor());
         }
     }
+    public void ToggleCellObject(out bool _isOpen)
+    {
+        bool status = opaqueMesh.activeSelf;
+        opaqueMesh.SetActive(!status);
+        transparentMesh.SetActive(status);
 
+        isOpen = opaqueMesh.activeSelf;
+        _isOpen = isOpen;
+    }
     #region Getters / Setters
     public void AddHex(HexagonController hex)
     {
@@ -333,6 +346,11 @@ public class CellController : MonoBehaviour
         Vector3 pos = new Vector3(0, verticalOffset, 0);
 
         return GetCenter() + pos;
+    }
+
+    public int GetHexListCount()
+    {
+        return hexagons.Count;
     }
 
     // SETTERS

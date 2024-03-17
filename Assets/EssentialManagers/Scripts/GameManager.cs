@@ -67,7 +67,6 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void NextStage()
     {
-        //Analytics.LevelPassed(PlayerPrefs.GetInt(cumulativeStagePlayedKey));
         PlayerPrefs.SetInt(cumulativeStagePlayedKey, PlayerPrefs.GetInt(cumulativeStagePlayedKey, 1) + 1);
 
         int targetScene;
@@ -89,12 +88,11 @@ public class GameManager : MonoSingleton<GameManager>
 
         PlayerPrefs.SetInt(lastPlayedStageKey, targetScene);
         LevelAboutToChangeEvent?.Invoke();
-        SceneManager.LoadScene(targetScene);
+        RestartStage();
     }
 
     public void RestartStage()
     {
-        LevelAboutToChangeEvent?.Invoke();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -115,7 +113,7 @@ public class GameManager : MonoSingleton<GameManager>
         {
             CellController cell = _gridManager.transform.GetChild(i).GetComponent<CellController>();
 
-            if (cell.isOccupied)
+            if (cell.isOccupied && !cell.IsAction)
                 occupiedCellAmount++;
         }
         if (occupiedCellAmount >= _gridManager.transform.childCount)

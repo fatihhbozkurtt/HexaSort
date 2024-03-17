@@ -15,13 +15,19 @@ MonoBehaviour:
   HexagonColorInfo:
   - SelectedColorEnum: 0
     HexColor: {r: 0, g: 0, b: 0, a: 0}
+    colorMat: {fileID: 0}
   - SelectedColorEnum: 1
     HexColor: {r: 1, g: 0, b: 0, a: 0}
+    colorMat: {fileID: 2100000, guid: 19ba13fedf6ff0b428c6ba3471ece127, type: 2}
   - SelectedColorEnum: 2
     HexColor: {r: 0.93412864, g: 1, b: 0, a: 0}
+    colorMat: {fileID: 2100000, guid: 48d06e2c3ccce7b4c810a4bf05ed53ee, type: 2}
   - SelectedColorEnum: 3
     HexColor: {r: 0, g: 0.47640514, b: 1, a: 0}
+    colorMat: {fileID: 2100000, guid: 3bb97ed66cbe94b45a18359610ab13cd, type: 2}
   - SelectedColorEnum: 4
     HexColor: {r: 0.88328743, g: 0, b: 1, a: 0}
+    colorMat: {fileID: 2100000, guid: 27695dd7a1217724b8458d27bf581e99, type: 2}
   - SelectedColorEnum: 5
     HexColor: {r: 0.11277485, g: 1, b: 0, a: 0}
+    colorMat: {fileID: 2100000, guid: 40fca9a8a54117446ae23e9a8d76ab59, type: 2}

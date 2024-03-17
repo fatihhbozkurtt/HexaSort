@@ -1,3 +1,6 @@
+
+
+[System.Serializable]
 public class ColorInfo
 {
     public enum ColorEnum

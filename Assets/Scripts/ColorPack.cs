@@ -9,6 +9,7 @@ public class ColorPack : ScriptableObject
     {
         public ColorInfo.ColorEnum SelectedColorEnum = ColorInfo.ColorEnum.None;
         public Color HexColor = new Color32(255, 255, 255, 255);
+        public Material colorMat;
     }
     public List<ColorPackInfo> HexagonColorInfo = new List<ColorPackInfo>();
     public int GetColorEnumIndex(ColorInfo.ColorEnum ControlColorEnum)
