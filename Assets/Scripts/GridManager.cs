@@ -25,6 +25,10 @@ public class GridManager : MonoSingleton<GridManager>
     public float VERTICAL_PLACEMENT_OFFSET = 0.2f;
     [SerializeField] List<StartInfo> startInfos;
 
+
+    [Space(125)]
+    public GridInfoAssigner CurrentGridInfo;
+
     public void Start()
     {
         startInfos = new();
@@ -57,7 +61,12 @@ public class GridManager : MonoSingleton<GridManager>
                 if (ContainsInStartInfo(x, y, out index))
                 {
                     GridPlan[x, y].isOpen = startInfos[index].isOpen;
-                    GridPlan[x, y].CellContentList = startInfos[index].ContentInfo;
+                    List<ColorInfo.ColorEnum> CE = new List<ColorInfo.ColorEnum>();
+                    for (int i = 0; i < startInfos[index].ContentInfo.Count; i++)
+                    {
+                        CE.Add(startInfos[index].ContentInfo[i]);
+                    }
+                    GridPlan[x, y].CellContentList = CE;
                 }
                 else
                 {

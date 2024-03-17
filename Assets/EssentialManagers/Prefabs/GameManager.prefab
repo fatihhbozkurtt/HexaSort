@@ -48,7 +48,7 @@ MonoBehaviour:
   isLevelActive: 0
   isLevelSuccessful: 0
   BlastObjectiveAmount: 8
-  MaxTargetScore: 10
+  MaxTargetScore: 150
 --- !u!1 &2805285470572258171
 GameObject:
   m_ObjectHideFlags: 0

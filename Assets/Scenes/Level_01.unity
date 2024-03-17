@@ -163,6 +163,7 @@ MonoBehaviour:
   _gridSizeY: 5
   VERTICAL_PLACEMENT_OFFSET: 0.2
   startInfos: []
+  CurrentGridInfo: {fileID: 0}
 --- !u!4 &503795491
 Transform:
   m_ObjectHideFlags: 0
@@ -228,8 +229,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentGridInfo:
-  - {fileID: 5199564279932214034, guid: c58a9cda9982df74697817c52d50eda9, type: 3}
-  - {fileID: 9019547940070002087, guid: c57e6731a96aacc4e9de97e706d3c548, type: 3}
+  - {fileID: 1572069075718722050, guid: c58a9cda9982df74697817c52d50eda9, type: 3}
+  - {fileID: 8603142958643532919, guid: c57e6731a96aacc4e9de97e706d3c548, type: 3}
+  - {fileID: 5146797381396778738, guid: 60c664a03ab4399499aac2fbee03fea3, type: 3}
+  - {fileID: 1233170751156159584, guid: a05974df8aa846b418b403bda62774cf, type: 3}
+  - {fileID: 6372623548293231570, guid: fb9bf534570108042ad897d0f494493c, type: 3}
 --- !u!1001 &2030396521191901025
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -6,15 +6,12 @@ public class GridManagerEditor : Editor
 {
     private ColorInfo.ColorEnum colorEnum;
     private bool addingHexagons;
-    GridInfoAssigner _currentLevelInfoAssigner;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
         if (Application.isPlaying) return;
-        if (_currentLevelInfoAssigner == null) _currentLevelInfoAssigner = FindAnyObjectByType<GridInfoAssigner>();
-
-        GUILayout.Space(50);
 
         EditorGUILayout.LabelField("Select Hexagon Color Then Click The Cell In The Scene", EditorStyles.boldLabel);
 
@@ -104,6 +101,6 @@ public class GridManagerEditor : Editor
             }
         }
 
-        _currentLevelInfoAssigner.AddToStartInfo(cellController);
+        gridManager.CurrentGridInfo.AddToStartInfo(cellController);
     }
 }

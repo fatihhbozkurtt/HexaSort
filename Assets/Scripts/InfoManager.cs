@@ -13,8 +13,6 @@ public class InfoManager : MonoSingleton<InfoManager>
 
         if (completedSceneCount < 0) completedSceneCount = 0;
 
-        Debug.Log("Total tamamlanan level sayýsý: " + completedSceneCount);
-
         return currentGridInfo[completedSceneCount];
 
     }
