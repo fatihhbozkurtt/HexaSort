@@ -3,7 +3,7 @@
 **Hexa Sort** is a relaxing and colorful mobile puzzle game where players drag hexagonal blocks onto a grid to match and clear them. It blends strategic placement with satisfying visuals and simple controls, making it easy to learn but challenging to master.
 
 This project is a hobby recreation inspired by the original *Hexa Sort* game by Gamebrain, created for learning purposes and portfolio development.
-📱 [Original AppStore Game](https://play.google.com/store/apps/details?id=com.gamebrain.hexasort&hl=en)
+📱 [Original Game](https://play.google.com/store/apps/details?id=com.gamebrain.hexasort&hl=en)
 
 ## 🎯 Project Goals
 
