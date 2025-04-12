@@ -5,12 +5,16 @@
 This project is a hobby recreation inspired by the original *Hexa Sort* game by Gamebrain, created for learning purposes and portfolio development.
 📱 [Original Game](https://play.google.com/store/apps/details?id=com.gamebrain.hexasort&hl=en)
 
+---
+
 ## 🎯 Project Goals
 
 - Recreate the core gameplay mechanics of Hexa Sort using Unity
 - Practice mobile-friendly UI/UX design
 - Learn and apply level-based puzzle balancing techniques
 - Build a modular system for easy level creation and progression
+
+---
 
 ## 🎮 Gameplay Overview
 
@@ -19,10 +23,14 @@ This project is a hobby recreation inspired by the original *Hexa Sort* game by 
 - Plan your placements carefully — the grid space is limited
 - Clear as many blocks as possible to progress through levels
 
+---
+
 ## 📹 Level Design Guideline
 
 You can view the level design reference video here:  
 🔗 [Level Design Guideline](https://drive.google.com/file/d/1Gwqb3EKX7Lvkp3KALmKYV2aNkzxT6Y5E/view?usp=sharing)
+
+---
 
 ## 🛠️ Technologies Used
 
@@ -31,11 +39,21 @@ You can view the level design reference video here:
 - Unity UI System (Canvas-based interface)
 - ScriptableObject for level data management
 
+---
+
+## 🎮 How to Play
+
+1. Move the balls between tubes to group them by color.
+2. You can't move a ball into a full tube.
+3. Try to solve the puzzle with the fewest possible moves.
+
+---
+
 ## 📱 Platform
 
 - Target: Android
 - (iOS support can be added in the future)
-
+---
 ## 📌 Notes
 
 - This project is a **non-commercial fan-made recreation** for educational and portfolio use.
