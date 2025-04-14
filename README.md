@@ -43,9 +43,13 @@ You can view the level design reference video here:
 
 ## 🎮 How to Play
 
-1. Move the balls between tubes to group them by color.
-2. You can't move a ball into a full tube.
-3. Try to solve the puzzle with the fewest possible moves.
+    1. Objective
+Sort all hexagons into stacks of the same color.
+	2.	Tap to Move
+Tap a stack to pick a hexagon, then tap another to place it.
+	3.	Valid Moves
+Only move to an empty stack or onto the same color.
+
 
 ---
 
