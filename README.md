@@ -43,12 +43,9 @@ You can view the level design reference video here:
 
 ## 🎮 How to Play
 
-    1. Objective
-Sort all hexagons into stacks of the same color.
-	2.	Tap to Move
-Tap a stack to pick a hexagon, then tap another to place it.
-	3.	Valid Moves
-Only move to an empty stack or onto the same color.
+1. Objective: Sort all hexagons into stacks of the same color.
+2.	Tap to Move: Tap a stack to pick a hexagon, then tap another to place it.
+3.	Valid Moves: Only move to an empty stack or onto the same color.
 
 
 ---
